@@ -26,8 +26,8 @@ class BlockEngine(object):
         for t in temp:
             print t
 
-        for y in xrange(0, len(self.tiles)):
-            for x in xrange(0, len(self.tiles[0])):
+        for y in xrange(len(self.tiles)):
+            for x in xrange(len(self.tiles[0])):
                 #print 'm = ', len(self.tiles), ' n = ', len(self.tiles[x])
                 #print 'tile', self.tiles[len(self.tiles) - 1 - x][y], x, y
                 #print self.tiles[0]
@@ -40,10 +40,14 @@ class BlockEngine(object):
         return self.tiles
 
     def rotateLeft(self):
-        self.rotateRight()
-        self.rotateRight()
-        return self.rotateRight()
+        temp = [[0 for x in xrange(len(self.tiles))] for y in xrange(len(self.tiles[0]))]
 
+        for y in xrange(len(self.tiles)):
+            for x in xrange(len(self.tiles[0])):
+                temp[y][-x+len(temp)-1] = self.tiles[x][y]
+        self.tiles = temp
+        return self.tiles
+                
     def printTiles(self):
         for x in self.tiles:
             print x
