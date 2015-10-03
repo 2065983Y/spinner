@@ -6,6 +6,7 @@ from game import *
 from retrogamelib import dialog
 from retrogamelib import font
 from retrogamelib import display
+from levels import *
 
 
 def run_menu():
@@ -43,19 +44,18 @@ def run_menu():
                 box.draw(screen, (4, 4))
                 display.update()
 
-
             game.won = True
             game.level = 1
-            game.lives = 5
+            game.lives = 3
             game.score = 0
 
-            # Play each level
-            # for lvl in LEVELS:
-            #     game.start_level(lvl)
-            #     game.level += 1
-            #     game.loop()
-            #     if not game.player.alive():
-            #         break
+            #Play each level
+            for lvl in LEVELS:
+                game.startLevel(lvl)
+                game.level += 1
+                game.loop()
+                #if not game.player.alive():
+                #    break
 
         screen = display.get_surface()
         screen.fill(GB_SCREEN_COLOR)

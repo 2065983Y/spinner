@@ -11,5 +11,3 @@ def main():
     #     button.handle_input()
     #     # if input():
     #     #     break;
-
-main()
