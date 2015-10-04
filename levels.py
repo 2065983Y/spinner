@@ -1,27 +1,50 @@
 
 
 level_1 = [
-    list("........GSS"),
-    list("S........SS"),
-    list("D......C.SS"),
-    list(".......CSSS"),
-    list("S......SSSS"),
-    list("D.....SSSSS"),
-    list("....SSSSSSS"),
-    list("....SSSSSSS"),
-    list("P.C.SSSSSSS"),
+    list("........."),
+    list("........."),
+    list("........."),
+    list("........."),
+    list("........."),
+    list("........."),
+    list("........."),
+    list("........G"),
+    list(".SSSSSSSS"),
     ]
 
 level_2 = [
-    list("........GSS"),
-    list("S........SS"),
-    list("D......C.SS"),
-    list(".......CSSS"),
-    list("S......SSSS"),
-    list("D.....SSSSS"),
-    list("....SSSSSSS"),
-    list("....SSSSSSS"),
-    list("P.C.SSSSSSS"),
+    list("........."),
+    list("........."),
+    list("........."),
+    list("........."),
+    list("........."),
+    list("........G"),
+    list("........S"),
+    list("..C....SS"),
+    list(".SSSSSSSS"),
     ]
 
-LEVELS = [level_1, level_2]
+level_3 = [
+    list("....SSSSS"),
+    list("....S...S"),
+    list("....SG..S"),
+    list("........S"),
+    list("........S"),
+    list("........S"),
+    list("........S"),
+    list("........S"),
+    list(".SSSSSSSS"),
+    ]
+
+level_4 = [
+    list("......GS"),
+    list(".......S"),
+    list("D.....CS"),
+    list("S....CSS"),
+    list(".....SSS"),
+    list("D...SSSS"),
+    list("S.SSSSSS"),
+    list(".CSSSSSS"),
+    ]
+
+LEVELS = [level_1, level_2, level_3, level_4]

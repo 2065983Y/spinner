@@ -104,7 +104,17 @@ class Game(object):
             self.matrix = self.engine.rotateLeft()
             self.engine.parseMatrix(self.matrix)
 
-            #self.engine.printTiles()
+        if button.is_pressed(A_BUTTON):
+            self.player.falling = True
+            (x, y) = (self.player.rect.left, self.player.rect.top)
+            (newX, newY) = self.engine.rotateLeftTile((x, y), 144)
+            self.player.rect.left = newX
+            self.player.rect.top = newY
+            for obj in self.objects:
+                if not obj == self.player:
+                    obj.kill()
+            self.matrix = self.engine.rotateRight()
+            self.engine.parseMatrix(self.matrix)
 
         for c in self.coins:
             if self.player.rect.colliderect(c.rect):
@@ -140,6 +150,41 @@ class Game(object):
                     else:
                         #slu4ai II
                         self.player.rect.bottom = s.rect.top
+
+        for s in self.dropBs:
+            if self.player.rect.colliderect(s.rect):
+                cX = s.rect.centerx
+                cY = s.rect.centery
+                pX = self.player.rect.centerx
+                pY = self.player.rect.centery
+                if (pX-cX) == 0:
+                    self.player.rect.bottom = s.rect.top
+                else:
+                    slope = (pY-cY)/(pX-cX)
+                    if slope == 0:
+                        if pX>cX:
+                            self.player.rect.left = s.rect.right
+                        else:
+                            self.player.rect.right = s.rect.left
+                    elif slope > 0 and slope <= 16.0/11:
+                        #slu4ai I
+                        self.player.rect.left = s.rect.right
+                    elif slope < 0 and slope >= -16.0/11:
+                        #slu4ai III
+                        self.player.rect.right = s.rect.left
+                    else:
+                        #slu4ai II
+                        self.player.rect.bottom = s.rect.top
+
+        for db in self.dropBs:
+            print "tile", self.matrix[db.x][db.y], db.x, db.y
+            if(db.y + 1 < len(self.matrix)):
+                if self.matrix[db.x][db.y + 1] == '.' or self.matrix[db.x][db.y + 1] == 'C':
+                    temp = self.matrix[db.x][db.y + 1]
+                    self.matrix[db.x][db.y+1] = 'D'
+                    self.matrix[db.x][db.y] = temp
+                    db.y = db.y + 1
+
 
         for g in self.gates:
             if self.player.rect.colliderect(g.rect):

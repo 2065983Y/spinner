@@ -17,7 +17,9 @@ class BlockEngine(object):
                 if el == 'S':
                     Solid((x*16, y*16))
                 elif el == 'D':
-                    DropBox((x*16, y*16))
+                    d = DropBox((x*16, y*16))
+                    d.x = y
+                    d.y = x
                 elif el == 'G':
                     Gate((x*16, y*16))
                 elif el == 'C':
@@ -105,7 +107,9 @@ class BlockEngine(object):
                 if el == 'S':
                     Solid((x*16, y*16))
                 elif el == 'D':
-                    DropBox((x*16, y*16))
+                    db = DropBox((x*16, y*16))
+                    db.x = y
+                    db.y = x
                 elif el == 'G':
                     Gate((x*16, y*16))
                 elif el == 'C':
