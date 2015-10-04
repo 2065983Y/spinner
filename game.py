@@ -1,9 +1,9 @@
 from ImageFile import _tilesort
-from retrogamelib import button, font, display
+from retrogamelib import button, font, display, gameobject
 from retrogamelib.util import *
 from retrogamelib.constants import *
 from blockEngine import *
-from objects import Player
+from objects import Player, DropBox, Gate, Solid
 from retrogamelib import clock
 from pygame import draw
 
@@ -11,19 +11,32 @@ from pygame import draw
 class Game(object):
 
     def __init__(self):
+        self.objects = gameobject.Group()
+        self.coins = gameobject.Group()
+        self.dropBs = gameobject.Group()
+        self.solids = gameobject.Group()
         self.font = font.Font(GAMEBOY_FONT, (50, 50, 50))
+        self.gates = gameobject.Group()
         self.background = load_image("data/bg.png")
         #Player.groups = [self.objects]
+
+        Player.groups = [self.objects]
+        Solid.groups = [self.objects, self.solids]
+        Gate.groups = [self.objects, self.gates]
+        DropBox.groups = [self.objects, self.dropBs]
+
+
         self.engine = BlockEngine()
         self.camera = pygame.Rect(0, 0, GBRES[0], GBRES[1])
+        self.matrix = 0
 
     def startLevel(self, level):
         self.show_win_screen = False
         self.player = Player()
         if self.lives > 0:
-           # for obj in self.objects:
-           #     obj.kill()
-            #self.player = Player()
+            for obj in self.objects:
+                obj.kill()
+            self.player = Player()
             self.engine.parseLevel(level)
             self.camera.centerx = self.player.rect.centerx
         else:
@@ -47,7 +60,90 @@ class Game(object):
             self.playing = False
 
     def update(self):
-        pass
+        clock.tick()
+        for object in self.objects:
+            if (object.rect.right >= self.camera.left and \
+                object.rect.left <= self.camera.right) or \
+                object.always_update == True:
+                object.update(self.engine.tiles)
+                object.always_update = True
+
+        self.camera.centerx = self.player.rect.centerx
+        if self.camera.left < 0:
+            self.camera.left = 0
+        if self.camera.right > len(self.engine.tiles[0])*16:
+            self.camera.right = len(self.engine.tiles[0])*16
+
+        # Make sure we don't move off the far left of the level
+        if self.player.rect.left < 0:
+            self.player.rect.left = 0
+
+        if self.player.rect.bottom > 144:
+            self.player.rect.bottom = 144
+
+        # Get rich quick!
+
+        moving = False
+        if button.is_held(LEFT):
+            self.facing = -1
+            moving = True
+            self.move(-2, 0, self.engine.tiles)
+        if button.is_held(RIGHT):
+            self.facing = 1
+            moving = True
+            self.move(2, 0, self.engine.tiles)
+        if button.is_pressed(B_BUTTON):
+            #print len(self.objects)
+            #print self.player in self.objects
+            self.player.falling = True
+            #print self.player.rect
+            #print 'right= ', self.player.rect.right, 'left= ', self.player.rect.left ,'top= ', self.player.rect.top, 'bottom= ', \
+            #    self.player.rect.bottom
+            (x, y) = (self.player.rect.left, self.player.rect.top)
+            (newX, newY) = self.engine.rotateLeftTile((x, y), 144)
+            self.player.rect.left = newX
+            self.player.rect.top = newY
+            for obj in self.objects:
+                if not obj == self.player:
+                    obj.kill()
+            self.matrix = self.engine.rotateLeft()
+            self.engine.parseMatrix(self.matrix)
+
+            #self.engine.printTiles()
+
+        for c in self.coins:
+            if self.player.rect.colliderect(c.rect):
+                c.kill()
+                self.score += 25
+                #Poof(c.rect.center)
+                play_sound("data/coin.ogg")
+
+        for s in self.solids:
+            if self.player.rect.colliderect(s.rect):
+                if self.player.falling:
+                    self.player.rect.bottom = s.rect.top
+                    #x = self.player.rect.centerx // 16
+                    #y = self.player.rect.centery // 16
+                    #self.player.rect.centerx = x
+                    #self.player.rect.centery = y
+                    #print self.matrix[y][x]
+                    #self.player.falling = False
+                    self.player.facing = 0
+
+
+                #print self.player.facing
+                if self.player.facing == 1:
+                    if self.player.rect.bottom - 1 < s.rect.top:
+                        print 'collide'
+                        self.player.rect.right = s.rect.left
+                elif self.player.facing == -1:
+                    if self.player.rect.bottom - 1 < s.rect.top:
+                        print 'collide'
+                        self.player.rect.left = s.rect.right
+
+                #print self.player.rect.right, s.rect.left
+                #print "collide"
+
 
     def draw(self):
         clock.tick()
@@ -58,8 +154,22 @@ class Game(object):
         screen.blit(self.background, (((-self.camera.x/2) - 160) % -160, 0))
         screen.blit(self.background, (((-self.camera.x/2) + 160) % 160, 0))
 
-        screen.blit(self.image, (self.rect.x - camera.x + self.offsetx,
-            self.rect.y - camera.y + self.offsety))
+        # screen.blit(self.image, (self.rect.x - camera.x + self.offsetx,
+        #     self.rect.y - camera.y + self.offsety))
+
+        for object in self.objects:
+            object.draw(screen, self.camera)
+
+        ren = self.font.render("score    level      x%d" % self.lives)
+        screen.blit(ren, (4, 4))
+        ren = self.font.render("%06d    %d-1" % (self.score, self.level-1))
+        screen.blit(ren, (4, 14))
+        #screen.blit(self.lifeicon, (160-30, 2))
+
+       # if not self.player.alive() and not self.dead:
+       #     self.start_level(LEVELS[self.level-2])
+
+        display.update()
 
         # clock.tick()
         # for object in self.objects:

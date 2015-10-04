@@ -1,4 +1,5 @@
 import Block
+from objects import Solid, Gate, DropBox
 
 
 class BlockEngine(object):
@@ -7,10 +8,20 @@ class BlockEngine(object):
 
     def parseLevel(self, level):
         tiles = []
+        y = 0
         for li in level:
+            x = 0
             temp = []
-            for x in li:
-                temp += [x]
+            for el in li:
+                temp += [el]
+                if el == 'S':
+                    Solid((x*16, y*16))
+                elif el == 'D':
+                    DropBox((x*16, y*16))
+                elif el == 'G':
+                    Gate((x*16, y*16))
+                x += 1
+            y += 1
             tiles += [temp]
         self.tiles = tiles
         #print 'rotating....'
@@ -22,9 +33,6 @@ class BlockEngine(object):
     #n = 20
     def rotateRight(self):
         temp = [[0 for x in xrange(len(self.tiles))] for y in xrange(len(self.tiles[0]))]
-
-        for t in temp:
-            print t
 
         for y in xrange(0, len(self.tiles)):
             for x in xrange(0, len(self.tiles[0])):
@@ -47,3 +55,27 @@ class BlockEngine(object):
     def printTiles(self):
         for x in self.tiles:
             print x
+
+    def rotateLeftTile(self, (x, y), maxY):
+        return (-y-1+maxY,x)
+        #temp[x][y] = self.tiles[y][-x + len(self.tiles[0]) - 1]
+
+    def rotateRightTile(self, (x, y), maxX):
+        return (y, maxX - 1 - x)
+        #temp[x][y] = self.tiles[y][-x + len(self.tiles[0]) - 1]
+
+    def parseMatrix(self, matrix):
+        y = 0
+        for li in matrix:
+            x = 0
+            temp = []
+            for el in li:
+                temp += [el]
+                if el == 'S':
+                    Solid((x*16, y*16))
+                elif el == 'D':
+                    DropBox((x*16, y*16))
+                elif el == 'G':
+                    Gate((x*16, y*16))
+                x += 1
+            y += 1

@@ -1,14 +1,19 @@
 from retrogamelib.util import load_image
 from retrogamelib import gameobject
 import pygame
+from retrogamelib import button
+from retrogamelib.constants import *
 
 
 class Collidable(gameobject.Object):
     def __init__(self):
-        gameobject.Object.__init__(self)
+        gameobject.Object.__init__(self, self.groups)
         self.offsetx = 0
         self.offsety = 0
         self.always_update = False
+
+    def dispose(self):
+        print self.groups
 
     def draw(self, surface, camera):
         surface.blit(self.image, (self.rect.x - camera.x + self.offsetx,
@@ -39,7 +44,7 @@ class Collidable(gameobject.Object):
             if pos[0] > -1 and pos[0] < len(tiles[0]) and \
                 pos[1] > -1 and pos[1] < len(tiles):
                 tile = tiles[pos[1]][pos[0]]
-                if isinstance(tile, Platform):
+                if isinstance(tile, Solid):
                     coltiles.append(tile)
 
         if dx != 0:
@@ -53,10 +58,7 @@ class Collidable(gameobject.Object):
         collided = False
         for tile in tiles:
             if self.rect.colliderect(tile.rect):
-                if tile.slant == 0:
-                    self.rect_respond(dx, dy, tile)
-                else:
-                    self.slant_respond(dx, dy, tile)
+                self.rect_respond(dx, dy, tile)
 
     def rect_respond(self, dx, dy, tile):
         if dx > 0:
@@ -68,21 +70,6 @@ class Collidable(gameobject.Object):
         elif dy < 0:
             self.rect.top = tile.rect.bottom
         self.on_collision(dx, dy)
-
-    def slant_respond(self, dx, dy, tile):
-        top = None
-        if tile.slant < 0:
-            if self.rect.left >= tile.rect.left:
-                x = self.rect.left - tile.rect.left
-                top = tile.rect.top+x-1
-        if tile.slant > 0:
-            if self.rect.right <= tile.rect.right:
-                x = tile.rect.right - self.rect.right
-                top = tile.rect.top+x-1
-        if top:
-            if self.rect.bottom > top:
-                self.rect.bottom = top
-                self.on_collision(0, dy)
 
 
 class Platform(Collidable):
@@ -104,8 +91,7 @@ class Platform(Collidable):
 
 class Player(Collidable):
     def __init__(self):
-        #Collidable.__init__(self)
-
+        Collidable.__init__(self)
         self.right_images = [
             load_image("data/bubbman-1.png"),
             load_image("data/bubbman-2.png"),
@@ -116,23 +102,89 @@ class Player(Collidable):
 
         self.images = self.right_images
         self.image = self.images[0]
-        self.rect = pygame.Rect(8, 16, 6, 16)
+        self.rect = pygame.Rect(0, 144 - 16, 6, 16)
 
         self.facing = 1
+        self.falling = False
         self.jump_speed = 0
         self.frame = 0
         self.jumping = True
         self.offsetx = -5
         self.z = 0
 
+    def on_collision(self, dx, dy):
+        print 'collided'
+
+    def update(self, tiles):
+        self.frame += 1
+        imgframe = 0
+
+        moving = False
+        # if button.is_held(LEFT):
+        #     self.facing = -1
+        #     moving = True
+        #     self.move(-2, 0, tiles)
+        # if button.is_held(RIGHT):
+        #     self.facing = 1
+        #     moving = True
+        #     self.move(2, 0, tiles)
+        # if button.is_held(B_BUTTON):
+        #     pass
+        # if button.is_pressed(A_BUTTON):
+        #     if not self.jumping:
+        #         play_sound("data/jump.ogg")
+        #         self.jump_speed = -5
+        #         self.jumping = True
+
+        if self.facing < 0:
+            self.images = self.left_images
+        else:
+            self.images = self.right_images
+
+        if moving:
+            imgframe = self.frame/3 % 2
+        if self.jumping:
+            imgframe = 1
+
+        self.image = self.images[imgframe]
+
+        if button.is_held(A_BUTTON):
+            self.jump_speed += 0.4
+        else:
+            self.jump_speed += 0.8
+        if self.jump_speed > 5:
+            self.jump_speed = 5
+
+        self.move(0, self.jump_speed, tiles)
+        if self.jump_speed > 3:
+            self.jumping = True
+
 
 class Solid(Collidable):
-    pass
+    def __init__(self, pos):
+        Collidable.__init__(self)
+        self.image = load_image('data/solid.png')
+        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
+
+    def update(self, tiles):
+        gameobject.Object.update(self)
 
 
 class DropBox(Collidable):
-    pass
+    def __init__(self, pos):
+        Collidable.__init__(self)
+        self.image = load_image('data/dropBox.png')
+        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
+
+    def update(self, tiles):
+        gameobject.Object.update(self)
 
 
 class Gate(Collidable):
-    pass
+    def __init__(self, pos):
+        Collidable.__init__(self)
+        self.image = load_image('data/portal.png')
+        self.rect = pygame.Rect(pos[0], pos[1], 16, 16)
+
+    def update(self, tiles):
+        gameobject.Object.update(self)
