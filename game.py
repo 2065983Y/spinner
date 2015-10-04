@@ -88,12 +88,7 @@ class Game(object):
         # Get rich quick!
 
         if button.is_pressed(B_BUTTON):
-            #print len(self.objects)
-            #print self.player in self.objects
             self.player.falling = True
-            #print self.player.rect
-            #print 'right= ', self.player.rect.right, 'left= ', self.player.rect.left ,'top= ', self.player.rect.top, 'bottom= ', \
-            #    self.player.rect.bottom
             (x, y) = (self.player.rect.left, self.player.rect.top)
             (newX, newY) = self.engine.rotateLeftTile((x, y), 144)
             self.player.rect.left = newX
@@ -120,10 +115,7 @@ class Game(object):
             if self.player.rect.colliderect(c.rect):
                 c.kill()
                 c.looted = True
-                #print self.engine.tiles[c.rect.centerx // 16][(c.rect.centery // 16) - 1]
-                #self.engine.tiles[c.rect.centerx // 16][(c.rect.centery // 16) - 1] = '.'
                 self.score += 25
-                #Poof(c.rect.center)
                 play_sound("data/coin.ogg")
 
         for s in self.solids:
@@ -240,16 +232,8 @@ class Game(object):
             self.levelCompleted = False
             self.level += 1
             print "lvl", self.level
+            if self.level == len(LEVELS):
+
             self.startLevel(LEVELS[self.level])
-       # if not self.player.alive() and not self.dead:
-       #     self.start_level(LEVELS[self.level-2])
 
         display.update()
-
-        # clock.tick()
-        # for object in self.objects:
-        #     if (object.rect.right >= self.camera.left and \
-        #         object.rect.left <= self.camera.right) or \
-        #         object.always_update == True:
-        #         object.update(self.engine.tiles)
-        #         object.always_update = True
