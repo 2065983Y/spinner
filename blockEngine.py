@@ -1,5 +1,5 @@
 import Block
-from objects import Solid, Gate, DropBox
+from objects import Solid, Gate, DropBox, Coin
 
 
 class BlockEngine(object):
@@ -20,6 +20,8 @@ class BlockEngine(object):
                     DropBox((x*16, y*16))
                 elif el == 'G':
                     Gate((x*16, y*16))
+                elif el == 'C':
+                    Coin((x*16, y*16))
                 x += 1
             y += 1
             tiles += [temp]
@@ -34,8 +36,8 @@ class BlockEngine(object):
     def rotateRight(self):
         temp = [[0 for x in xrange(len(self.tiles))] for y in xrange(len(self.tiles[0]))]
 
-        for y in xrange(0, len(self.tiles)):
-            for x in xrange(0, len(self.tiles[0])):
+        for y in xrange(len(self.tiles)):
+            for x in xrange(len(self.tiles[0])):
                 #print 'm = ', len(self.tiles), ' n = ', len(self.tiles[x])
                 #print 'tile', self.tiles[len(self.tiles) - 1 - x][y], x, y
                 #print self.tiles[0]
@@ -51,7 +53,14 @@ class BlockEngine(object):
         self.rotateRight()
         self.rotateRight()
         return self.rotateRight()
-
+        # temp = [[0 for x in xrange(len(self.tiles))] for y in xrange(len(self.tiles[0]))]
+        #
+        # for y in xrange(len(self.tiles)):
+        #     for x in xrange(len(self.tiles[0])):
+        #         temp[y][-x+len(temp)-1] = self.tiles[x][y]
+        # self.tiles = temp
+        # return self.tiles
+                
     def printTiles(self):
         for x in self.tiles:
             print x
@@ -77,5 +86,7 @@ class BlockEngine(object):
                     DropBox((x*16, y*16))
                 elif el == 'G':
                     Gate((x*16, y*16))
+                elif el == 'C':
+                    Coin((x*16, y*16))
                 x += 1
             y += 1

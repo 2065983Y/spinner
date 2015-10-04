@@ -89,6 +89,24 @@ class Platform(Collidable):
         gameobject.Object.update(self)
 
 
+class Coin(Collidable):
+    def __init__(self, pos):
+        Collidable.__init__(self)
+        self.images = [
+            load_image("data/coin-1.png"), load_image("data/coin-2.png"),
+            load_image("data/coin-3.png"), load_image("data/coin-4.png"),
+        ]
+        self.image = self.images[0]
+        self.rect = self.image.get_rect(topleft = pos)
+        self.frame = 0
+        self.always_update = True
+        self.z = -2
+
+    def update(self, tiles):
+        self.frame += 1
+        self.image = self.images[self.frame/4 % 4]
+
+
 class Player(Collidable):
     def __init__(self):
         Collidable.__init__(self)
@@ -120,21 +138,21 @@ class Player(Collidable):
         imgframe = 0
 
         moving = False
-        # if button.is_held(LEFT):
-        #     self.facing = -1
-        #     moving = True
-        #     self.move(-2, 0, tiles)
-        # if button.is_held(RIGHT):
-        #     self.facing = 1
-        #     moving = True
-        #     self.move(2, 0, tiles)
-        # if button.is_held(B_BUTTON):
-        #     pass
-        # if button.is_pressed(A_BUTTON):
-        #     if not self.jumping:
-        #         play_sound("data/jump.ogg")
-        #         self.jump_speed = -5
-        #         self.jumping = True
+        if button.is_held(LEFT):
+            self.facing = -1
+            moving = True
+            self.move(-2, 0, tiles)
+        if button.is_held(RIGHT):
+            self.facing = 1
+            moving = True
+            self.move(2, 0, tiles)
+        if button.is_held(B_BUTTON):
+            pass
+        if button.is_pressed(A_BUTTON):
+            if not self.jumping:
+                play_sound("data/jump.ogg")
+                self.jump_speed = -5
+                self.jumping = True
 
         if self.facing < 0:
             self.images = self.left_images

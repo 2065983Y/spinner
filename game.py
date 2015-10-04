@@ -24,6 +24,7 @@ class Game(object):
         Solid.groups = [self.objects, self.solids]
         Gate.groups = [self.objects, self.gates]
         DropBox.groups = [self.objects, self.dropBs]
+        Coin.groups = [self.objects, self.coins]
 
 
         self.engine = BlockEngine()
@@ -83,15 +84,6 @@ class Game(object):
 
         # Get rich quick!
 
-        moving = False
-        if button.is_held(LEFT):
-            self.facing = -1
-            moving = True
-            self.move(-2, 0, self.engine.tiles)
-        if button.is_held(RIGHT):
-            self.facing = 1
-            moving = True
-            self.move(2, 0, self.engine.tiles)
         if button.is_pressed(B_BUTTON):
             #print len(self.objects)
             #print self.player in self.objects
@@ -114,12 +106,41 @@ class Game(object):
         for c in self.coins:
             if self.player.rect.colliderect(c.rect):
                 c.kill()
+                c.rect.centerx
                 self.score += 25
                 #Poof(c.rect.center)
                 play_sound("data/coin.ogg")
 
         for s in self.solids:
             if self.player.rect.colliderect(s.rect):
+                cX = s.rect.centerx
+                cY = s.rect.centery
+                pX = self.player.rect.centerx
+                pY = self.player.rect.centery
+                if (pX-cX) == 0:
+                    self.player.rect.bottom = s.rect.top
+                else:
+                    slope = (pY-cY)/(pX-cX)
+                    print "slope= ",slope
+                    if slope == 0:
+                        if pX>cX:
+                            self.player.rect.left = s.rect.right
+                        else:
+                            self.player.rect.right = s.rect.left
+                    elif slope > 0 and slope <= 16.0/11:
+                        #slu4ai I
+                        print "1"
+                        self.player.rect.left = s.rect.right
+                    elif slope < 0 and slope >= -16.0/11:
+                        #slu4ai III
+                        print "3"
+                        self.player.rect.right = s.rect.left
+                    else:
+                        #slu4ai II
+                        print "2"
+                        self.player.rect.bottom = s.rect.top
+
+                '''
                 if self.player.falling:
                     self.player.rect.bottom = s.rect.top
                     #x = self.player.rect.centerx // 16
@@ -140,7 +161,7 @@ class Game(object):
                     if self.player.rect.bottom - 1 < s.rect.top:
                         print 'collide'
                         self.player.rect.left = s.rect.right
-
+'''
                 #print self.player.rect.right, s.rect.left
                 #print "collide"
 
