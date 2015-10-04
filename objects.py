@@ -101,6 +101,7 @@ class Coin(Collidable):
         self.frame = 0
         self.always_update = True
         self.z = -2
+        self.looted = False
 
     def update(self, tiles):
         self.frame += 1

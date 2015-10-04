@@ -5,6 +5,7 @@ from retrogamelib.constants import *
 from blockEngine import *
 from objects import Player, DropBox, Gate, Solid
 from retrogamelib import clock
+from levels import LEVELS
 from pygame import draw
 
 
@@ -18,8 +19,10 @@ class Game(object):
         self.font = font.Font(GAMEBOY_FONT, (50, 50, 50))
         self.gates = gameobject.Group()
         self.background = load_image("data/bg.png")
+        self.levelCompleted = False
         #Player.groups = [self.objects]
 
+        self.level = 0
         Player.groups = [self.objects]
         Solid.groups = [self.objects, self.solids]
         Gate.groups = [self.objects, self.gates]
@@ -38,7 +41,7 @@ class Game(object):
             for obj in self.objects:
                 obj.kill()
             self.player = Player()
-            self.engine.parseLevel(level)
+            self.matrix = self.engine.parseLevel(level)
             self.camera.centerx = self.player.rect.centerx
         else:
             self.won = False
@@ -106,7 +109,9 @@ class Game(object):
         for c in self.coins:
             if self.player.rect.colliderect(c.rect):
                 c.kill()
-                c.rect.centerx
+                c.looted = True
+                #print self.engine.tiles[c.rect.centerx // 16][(c.rect.centery // 16) - 1]
+                #self.engine.tiles[c.rect.centerx // 16][(c.rect.centery // 16) - 1] = '.'
                 self.score += 25
                 #Poof(c.rect.center)
                 play_sound("data/coin.ogg")
@@ -121,7 +126,6 @@ class Game(object):
                     self.player.rect.bottom = s.rect.top
                 else:
                     slope = (pY-cY)/(pX-cX)
-                    print "slope= ",slope
                     if slope == 0:
                         if pX>cX:
                             self.player.rect.left = s.rect.right
@@ -129,17 +133,17 @@ class Game(object):
                             self.player.rect.right = s.rect.left
                     elif slope > 0 and slope <= 16.0/11:
                         #slu4ai I
-                        print "1"
                         self.player.rect.left = s.rect.right
                     elif slope < 0 and slope >= -16.0/11:
                         #slu4ai III
-                        print "3"
                         self.player.rect.right = s.rect.left
                     else:
                         #slu4ai II
-                        print "2"
                         self.player.rect.bottom = s.rect.top
 
+        for g in self.gates:
+            if self.player.rect.colliderect(g.rect):
+                self.levelCompleted = True
                 '''
                 if self.player.falling:
                     self.player.rect.bottom = s.rect.top
@@ -187,6 +191,11 @@ class Game(object):
         screen.blit(ren, (4, 14))
         #screen.blit(self.lifeicon, (160-30, 2))
 
+        if self.levelCompleted:
+            self.levelCompleted = False
+            self.level += 1
+            print "lvl", self.level
+            self.startLevel(LEVELS[self.level])
        # if not self.player.alive() and not self.dead:
        #     self.start_level(LEVELS[self.level-2])
 

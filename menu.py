@@ -45,14 +45,14 @@ def run_menu():
                 display.update()
 
             game.won = True
-            game.level = 1
+            #game.level = 1
             game.lives = 3
             game.score = 0
 
             #Play each level
             for lvl in LEVELS:
                 game.startLevel(lvl)
-                game.level += 1
+                #game.level += 1
                 game.loop()
                 #if not game.player.alive():
                 #    break
